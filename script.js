@@ -1,0 +1,7 @@
+const DB_KEY = 'darulbariyah_site_v1';
+function ensureDB(){ let db = localStorage.getItem(DB_KEY); if(db) return JSON.parse(db); const init = {registrations:[],news:[],gallery:[]}; localStorage.setItem(DB_KEY, JSON.stringify(init)); return init; }
+function saveRegistration(e){ e.preventDefault(); const form = document.getElementById('form-pendaftaran'); const data = {id:Date.now(),nama:form.nama.value,ttl:form.ttl.value,alamat:form.alamat.value,asal:form.asal.value,ortu:form.ortu.value,telp:form.telp.value,catatan:form.catatan.value}; const db = ensureDB(); db.registrations.push(data); localStorage.setItem(DB_KEY, JSON.stringify(db)); alert('Pendaftaran berhasil disimpan (simulasi).'); form.reset(); }
+function submitNews(){ const t = document.getElementById('news-title'); const b = document.getElementById('news-body'); if(!t.value||!b.value){ alert('Isi judul & isi'); return;} const db = ensureDB(); db.news.push({id:Date.now(),title:t.value,body:b.value,date:new Date().toISOString().slice(0,10)}); localStorage.setItem(DB_KEY, JSON.stringify(db)); renderNews(); t.value=''; b.value=''; alert('Berita ditambahkan (lokal).'); }
+function renderNews(){ const db = ensureDB(); const ul = document.getElementById('news-list'); if(!ul) return; ul.innerHTML=''; db.news.slice().reverse().forEach(n=>{ const li = document.createElement('li'); li.innerHTML = '<h4>'+n.title+' <small class="small">'+n.date+'</small></h4><p>'+n.body+'</p>'; ul.appendChild(li); }); }
+function initSite(){ renderNews(); }
+document.addEventListener('DOMContentLoaded', initSite);

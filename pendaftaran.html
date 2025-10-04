@@ -1,0 +1,15 @@
+<!doctype html><html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Pendaftaran - Pesantren Modern Darul Bariyah</title><link rel='stylesheet' href='/style.css'></head><body>
+<header class='header'><div class='brand'><img src='/logo.svg' alt='logo'/>Pesantren Modern Darul Bariyah</div></header>
+<main class='container'><div class='card'><h2>Formulir Pendaftaran</h2>
+<form id='form' method='post'>
+  <div class='form-group'><label>Nama</label><input name='nama' class='input' required></div>
+  <div class='form-group'><label>TTL</label><input name='ttl' class='input'></div>
+  <div class='form-group'><label>Alamat</label><input name='alamat' class='input'></div>
+  <div class='form-group'><label>Asal Sekolah</label><input name='asal' class='input'></div>
+  <div class='form-group'><label>Nama Orang Tua</label><input name='ortu' class='input'></div>
+  <div class='form-group'><label>Telp</label><input name='telp' class='input'></div>
+  <div><button class='btn' type='submit'>Kirim</button></div>
+</form></div></main>
+<script>
+document.getElementById('form').addEventListener('submit', async function(e){ e.preventDefault(); const fd = new FormData(e.target); const res = await fetch('/api/pendaftaran', { method:'POST', body: fd }).then(r=>r.json()); if(res.ok) alert('Pendaftaran terkirim'); e.target.reset(); });
+</script></body></html>

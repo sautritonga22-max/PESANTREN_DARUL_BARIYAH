@@ -1,0 +1,8 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pesantren Modern Darul Bariyah</title><link rel="stylesheet" href="/style.css"></head><body>
+<header class="header"><div class="brand"><img src="/logo.svg" alt="logo"/>Pesantren Modern Darul Bariyah</div><nav class="nav"><a href="/admin.html" class="small">Admin</a></nav></header>
+<main class="container"><section class="card"><h1 id="site-name">Pesantren Modern Darul Bariyah</h1><p class="small">Riau, Kabupaten Tanah Putih Tanjung Melawan, Sukajadi, Melayu Tengah • darulbariyah@gmail.com • 088745362625</p><p id="home-intro"></p><p id="home-short" class="small"></p></section>
+<section class="card" style="margin-top:12px"><h3>Berita Terbaru</h3><ul id="berita-list"></ul></section></main>
+<script>
+async function init(){ const h = await fetch('/api/home').then(r=>r.json()); document.getElementById('home-intro').innerText = h.intro || ''; document.getElementById('home-short').innerText = h.short || ''; const b = await fetch('/api/berita').then(r=>r.json()); const ul = document.getElementById('berita-list'); ul.innerHTML = ''; b.forEach(function(it){ const li = document.createElement('li'); li.innerHTML = '<h4>' + it.title + ' <small class="small">' + it.date + '</small></h4><p>' + it.body + '</p>'; if(it.image) li.innerHTML += '<img src="' + it.image + '" style="max-width:240px;border-radius:8px;margin-top:6px">'; ul.appendChild(li); }); }
+init();
+</script></body></html>

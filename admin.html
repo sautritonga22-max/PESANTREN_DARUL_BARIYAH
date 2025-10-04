@@ -1,0 +1,89 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin - Pesantren Modern Darul Bariyah</title><link rel="stylesheet" href="/style.css"></head><body>
+<header class="header"><div class="brand"><img src="/logo.svg" alt="logo"/>Admin Dashboard</div><nav class="nav"><a href="/" class="small">Lihat Situs</a><a href="/login-admin.html" class="small">Logout</a></nav></header>
+<main class="container"><div class="card"><h2>Admin</h2>
+<div id="auth-area">
+  <div class="form-group"><label>Username</label><input id="admin-user" class="input" value="admin"></div>
+  <div class="form-group"><label>Password</label><input id="admin-pass" class="input" type="password" value="admin123"></div>
+  <div><button class="btn" id="btn-login">Login</button></div>
+</div>
+<div id="panel" style="display:none;margin-top:12px">
+  <div><button class="btn" id="btn-load-home">Edit Beranda</button> <button class="btn" id="btn-load-berita">Kelola Berita</button> <button class="btn" id="btn-load-edukasi">Kelola Edukasi</button> <button class="btn" id="btn-load-reg">Pendaftaran</button> <button class="btn" id="btn-logout">Logout</button></div>
+  <div id="admin-content" style="margin-top:12px"></div>
+</div>
+</div></main>
+<script>
+async function postJson(url, data){ const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) }); return res.json(); }
+async function login(){ const u=document.getElementById('admin-user').value; const p=document.getElementById('admin-pass').value; const r = await postJson('/api/login', { username:u, password:p }); if(r.ok){ alert('Login sukses'); document.getElementById('auth-area').style.display='none'; document.getElementById('panel').style.display='block'; } else alert('Login gagal'); }
+document.getElementById('btn-login').onclick = login;
+document.getElementById('btn-logout').onclick = async ()=>{ await fetch('/api/logout',{method:'POST'}); location.reload(); };
+
+document.getElementById('btn-load-home').onclick = async ()=>{
+  const h = await fetch('/api/home').then(r=>r.json());
+  document.getElementById('admin-content').innerHTML = `
+    <h3>Edit Beranda</h3>
+    <div class="form-group"><label>Intro</label><textarea id="home-intro" class="input" rows="3">` + (h.intro || '') + `</textarea></div>
+    <div class="form-group"><label>Short</label><textarea id="home-short" class="input" rows="2">` + (h.short || '') + `</textarea></div>
+    <div><button class="btn" id="save-home">Simpan</button></div>
+  `;
+  document.getElementById('save-home').onclick = async ()=>{
+    const intro = document.getElementById('home-intro').value;
+    const short = document.getElementById('home-short').value;
+    const res = await postJson('/api/home', { intro, short });
+    if(res.ok) alert('Beranda disimpan');
+  };
+};
+
+document.getElementById('btn-load-berita').onclick = async ()=>{
+  const items = await fetch('/api/berita').then(r=>r.json());
+  let html = '<h3>Kelola Berita</h3>' +
+    '<h4>Tambah Berita</h4>' +
+    '<div class="form-group"><label>Judul</label><input id="new-title" class="input"></div>' +
+    '<div class="form-group"><label>Isi</label><textarea id="new-body" class="input" rows="3"></textarea></div>' +
+    '<div class="form-group"><label>Gambar (opsional)</label><input id="new-image" type="file" class="input"></div>' +
+    '<div><button class="btn" id="add-berita">Tambah</button></div><hr/>';
+  html += '<table class="table"><thead><tr><th>ID</th><th>Judul</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody>';
+  items.forEach(function(it){ html += '<tr><td>' + it.id + '</td><td>' + it.title + '</td><td>' + it.date + '</td><td><button data-id="' + it.id + '" class="btn edit">Edit</button> <button data-id="' + it.id + '" class="btn del">Hapus</button></td></tr>'; });
+  html += '</tbody></table>';
+  document.getElementById('admin-content').innerHTML = html;
+  document.getElementById('add-berita').onclick = async ()=>{
+    const title = document.getElementById('new-title').value;
+    const body = document.getElementById('new-body').value;
+    const file = document.getElementById('new-image').files[0];
+    const fd = new FormData();
+    fd.append('title', title);
+    fd.append('body', body);
+    if(file) fd.append('image', file);
+    const res = await fetch('/api/berita', { method:'POST', body: fd }).then(r=>r.json());
+    if(res.ok) { alert('Berita ditambah'); location.reload(); }
+  };
+  document.querySelectorAll('.del').forEach(function(b){ b.onclick = async function(e){ const id = e.target.dataset.id; if(confirm('Hapus?')){ await fetch('/api/berita/'+id, { method:'DELETE' }); alert('Terhapus'); location.reload(); } }; });
+};
+
+document.getElementById('btn-load-edukasi').onclick = async ()=>{
+  const items = await fetch('/api/edukasi').then(r=>r.json());
+  let html = '<h3>Kelola Edukasi</h3>' +
+    '<div class="form-group"><label>Judul</label><input id="ed-title" class="input"></div>' +
+    '<div class="form-group"><label>Isi</label><textarea id="ed-body" class="input" rows="3"></textarea></div>' +
+    '<div><button class="btn" id="add-ed">Tambah</button></div><hr/>';
+  html += '<table class="table"><thead><tr><th>ID</th><th>Judul</th><th>Aksi</th></tr></thead><tbody>';
+  items.forEach(function(it){ html += '<tr><td>' + it.id + '</td><td>' + it.title + '</td><td><button data-id="' + it.id + '" class="btn del-ed">Hapus</button></td></tr>'; });
+  html += '</tbody></table>';
+  document.getElementById('admin-content').innerHTML = html;
+  document.getElementById('add-ed').onclick = async ()=>{ const title = document.getElementById('ed-title').value; const body = document.getElementById('ed-body').value; await postJson('/api/edukasi', { title, body }); alert('Ditambah'); location.reload(); };
+  document.querySelectorAll('.del-ed').forEach(function(b){ b.onclick = async function(e){ const id = e.target.dataset.id; if(confirm('Hapus?')){ await fetch('/api/edukasi/'+id, { method:'DELETE' }); alert('Terhapus'); location.reload(); } }; });
+};
+
+document.getElementById('btn-load-reg').onclick = async ()=>{
+  const items = await fetch('/api/pendaftaran').then(r=>r.json());
+  let html = '<h3>Data Pendaftaran</h3><table class="table"><thead><tr><th>ID</th><th>Nama</th><th>TTL</th><th>Asal</th><th>Ortu</th><th>Telp</th><th>Aksi</th></tr></thead><tbody>';
+  items.forEach(function(it){ html += '<tr><td>' + it.id + '</td><td>' + it.nama + '</td><td>' + it.ttl + '</td><td>' + it.asal + '</td><td>' + it.ortu + '</td><td>' + it.telp + '</td><td><button data-id="' + it.id + '" class="btn del-reg">Hapus</button></td></tr>'; });
+  html += '</tbody></table>';
+  document.getElementById('admin-content').innerHTML = html;
+  document.querySelectorAll('.del-reg').forEach(function(b){ b.onclick = async function(e){ const id = e.target.dataset.id; if(confirm('Hapus?')){ await fetch('/api/pendaftaran/'+id, { method:'DELETE' }); alert('Dihapus'); location.reload(); } }; });
+};
+
+// auto-check if already logged in
+async function checkAuth(){ try{ const r = await fetch('/api/pendaftaran'); if(r.status===401) return; const items = await r.json(); if(items){ document.getElementById('auth-area').style.display='none'; document.getElementById('panel').style.display='block'; } }catch(e){} }
+checkAuth();
+</script></body></html>
+ 

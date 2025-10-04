@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="240" height="240" rx="28" fill="#0F7A45"/>
+  <g transform="translate(24,24)">
+    <text x="0" y="110" fill="#FFFFFF" font-family="Poppins, sans-serif" font-size="28" font-weight="700">Darul</text>
+    <text x="0" y="140" fill="#FFFFFF" font-family="Poppins, sans-serif" font-size="28" font-weight="700">Bariyah</text>
+  </g>
+</svg>
